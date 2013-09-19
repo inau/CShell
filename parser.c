@@ -18,7 +18,8 @@
 #define isbg(c)   ((c) == BG)
 #define isrin(c)  ((c) == RIN)
 #define isrut(c)  ((c) == RUT)
-#define isspec(c) (ispipe(c) || isbg(c) || isrin(c) || isrut(c))
+#define isexit(c) ((c) == EXIT)
+#define isspec(c) (ispipe(c) || isbg(c) || isrin(c) || isrut(c) || isexit(c))
 
 /* --- static memory allocation --- */
 static Cmd  cmdbuf[COMMANDMAX], *cmds;
@@ -117,6 +118,9 @@ int parsecommand(char *cmdline, Shellcmd *shellcmd)
 		}
 		t += n;
 		break;
+	  case EXIT:
+		fprint("CShell is shutting down, C you soon :)");
+		return 0;
 	  default:
 		return -1;
 	}
