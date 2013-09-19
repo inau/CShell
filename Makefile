@@ -4,8 +4,8 @@ OBJS = parser.o print.o
 LIBS= -lreadline -ltermcap
 CC = gcc
 
-boash: boash.o ${OBJS}
-	${CC} -o $@  ${LIBS} boash.o ${OBJS}
+CShell: CShell.o ${OBJS}
+	${CC} -o $@  ${LIBS} CShell.o ${OBJS}
 
 clean:
-	rm -rf *o boash
+	rm -rf *o CShell
