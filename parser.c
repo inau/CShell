@@ -11,7 +11,7 @@
 #define BG    ('&')
 #define RIN   ('<')
 #define RUT   ('>')
-#define EXIT  ('exit')
+#define EXIT  ('e') //Note: Only one byte..
 #define IDCHARS "_-.,/~+"
 
 /* --- symbolic macros --- */
@@ -120,7 +120,7 @@ int parsecommand(char *cmdline, Shellcmd *shellcmd)
 		t += n;
 		break;
 	  case EXIT:
-		fprint("CShell is shutting down, C you soon :)");
+		printf("CShell is shutting down, C you soon :)");
 		return 0;
 	  default:
 		return -1;

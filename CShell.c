@@ -16,12 +16,24 @@
 
 /* --- symbolic constants --- */
 #define HOSTNAMEMAX 100
+#define MAXBUF 512
 
 /* --- use the /proc filesystem to obtain the hostname --- */
 char *gethostname(char *hostname)
 {
   hostname = "";
+  FILE *hostfile;
+  printf("Getting host file");
+  hostfile = fopen ("/proc/sys/kernel/hostname","r");
+  if(hostfile == NULL){
+      printf("Unable to open hostname file!");
+      
+  }else
+      fgets(hostname, MAXBUF, hostfile);
+      
+  
   return hostname;
+
 }
 
 /* --- execute a shell command --- */
