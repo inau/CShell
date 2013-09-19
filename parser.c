@@ -11,6 +11,7 @@
 #define BG    ('&')
 #define RIN   ('<')
 #define RUT   ('>')
+#define EXIT  ('exit')
 #define IDCHARS "_-.,/~+"
 
 /* --- symbolic macros --- */
