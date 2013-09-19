@@ -15,23 +15,24 @@
 #include "print.h"
 
 /* --- symbolic constants --- */
-#define HOSTNAMEMAX 100
 #define MAXBUF 512
 
 /* --- use the /proc filesystem to obtain the hostname --- */
-char *gethostname(char *hostname)
+char *gethostname()
 {
-  hostname = "";
+    
+  char hostname[MAXBUF];   
   FILE *hostfile;
-  printf("Getting host file");
+  printf("Getting host file \n");
   hostfile = fopen ("/proc/sys/kernel/hostname","r");
   if(hostfile == NULL){
-      printf("Unable to open hostname file!");
+      printf("Unable to open hostname file!\n");
       
-  }else
-      fgets(hostname, MAXBUF, hostfile);
+  }else{
+        scanf(hostfile, "%[^\n]", hostname);
       
-  
+  }
+  printf(hostname);
   return hostname;
 
 }
@@ -49,7 +50,7 @@ int main(int argc, char* argv[]) {
 
   /* initialize the shell */
   char *cmdline;
-  char hostname[HOSTNAMEMAX];
+  char hostname[MAXBUF];
   int terminate = 0;
   Shellcmd shellcmd;
   
