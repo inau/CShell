@@ -1,4 +1,4 @@
-all: bosh
+all: CShell
 
 OBJS = parser.o print.o
 LIBS= -lreadline -ltermcap
