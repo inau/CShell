@@ -5,7 +5,7 @@ LIBS= -lreadline -ltermcap
 CC = gcc
 
 CShell: CShell.o ${OBJS}
-	${CC} -o $@  ${LIBS} CShell.o ${OBJS}
+	${CC} ${LIBS} -o $@ CShell.o ${OBJS}
 
 clean:
 	rm -rf *o CShell
