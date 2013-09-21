@@ -1,0 +1,2 @@
+/* This gets the readline library including the history part! */
+sudo apt-get install libreadline-dev

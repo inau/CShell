@@ -120,7 +120,7 @@ int parsecommand(char *cmdline, Shellcmd *shellcmd)
 		t += n;
 		break;
 	  case EXIT:
-		printf("Exiting CShell... Sea you soon!");
+		printf("Exiting CShell... Sea you soon! :)");
 		return 0;
 	  default:
 		return -1;
