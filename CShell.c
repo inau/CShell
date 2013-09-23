@@ -27,16 +27,18 @@
 /* --- use the /proc filesystem to obtain the hostname --- */
 char *gethostname(char *hostname)
 {
-  hostname = "";
+  char hostname2[MAXBUF];   
   FILE *hostfile;
-  printf("Getting host file");
+  printf("Getting host file \n");
   hostfile = fopen ("/proc/sys/kernel/hostname","r");
   if(hostfile == NULL){
-      printf("Unable to open hostname file!");
+      printf("Unable to open hostname file!\n");
       
-  }else
+  }else{
       fgets(hostname, MAXBUF, hostfile);
-      
+      hostname[strlen(hostname)-1] = 0;
+  }
+  //printf(hostname);
   
   return hostname;
 
