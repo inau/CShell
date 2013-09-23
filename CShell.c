@@ -70,7 +70,7 @@ int main(int argc, char* argv[]) {
       } else terminate = 1;
     }
     printf("Exiting CShell... Sea you soon!\n");
-  }    
+  }
     
   return EXIT_SUCCESS;
 }

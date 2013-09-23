@@ -29,7 +29,7 @@ char *gethostname()
       printf("Unable to open hostname file!\n");
       
   }else{
-        scanf(hostfile, "%[^\n]", hostname);
+        fscanf(hostfile, "%[^\n]", hostname);
       
   }
   printf(hostname);
@@ -53,14 +53,6 @@ int main(int argc, char* argv[]) {
   char hostname[MAXBUF];
   int terminate = 0;
   Shellcmd shellcmd;
-
-  /* initialize the shell history */
-  HisEntry *root; // Root history entry.
-  root = malloc(sizeof(struct HisEntry));
-  root->prev = 0;
-  root->next = 0;
-  root->entry = "";
-  HisEntry *iterator = root; // The current history entry (start at root).
   
   if (gethostname(hostname)) {
 
