@@ -29,7 +29,7 @@ char *gethostname()
       printf("Unable to open hostname file!\n");
       
   }else{
-        scanf(hostfile, "%[^\n]", hostname);
+        fscanf(hostfile, "%[^\n]", hostname);
       
   }
   printf(hostname);
