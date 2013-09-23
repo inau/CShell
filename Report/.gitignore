@@ -1,0 +1,10 @@
+/nbproject/
+*.o
+CShell
+*.aux
+*.synctex.gz
+*.toc
+*.pdf
+*.log
+/code snippets
+/code snippets~
