@@ -1,6 +1,6 @@
 /* 
 
-   boash.c : Born Once Again Shell C shell 
+   CShell.c : She sells CShells at the C shore 
 
  */
 
@@ -17,6 +17,12 @@
 /* --- symbolic constants --- */
 #define HOSTNAMEMAX 100
 #define MAXBUF 512
+
+#define EXIT		("exit")
+
+/* --- symbolic macros --- */
+#define isexit(c) ((c) == EXIT)
+#define isspec(c) (isexit(c))
 
 /* --- use the /proc filesystem to obtain the hostname --- */
 char *gethostname(char *hostname)
@@ -39,6 +45,16 @@ char *gethostname(char *hostname)
 /* --- execute a shell command --- */
 int executeshellcmd (Shellcmd *shellcmd)
 {
+  // Check if the command is one of the reserved.
+  Cmd *firstCmd = shellcmd->the_cmds;
+  char *tok = (char*)(firstCmd->cmd);
+  if (isspec(tok)) {
+    if (strcmp(tok, "exit")) {
+      // Return 1 if exit (exits CShell).
+      return 1;
+    }
+  }
+  
   printshellcmd(shellcmd);
 
   return 0;
@@ -68,7 +84,7 @@ int main(int argc, char* argv[]) {
 	free(cmdline);
       } else terminate = 1;
     }
-    printf("Exiting BOASH.\n");
+    printf("Exiting CShell. Sea you soon!\n");
   }    
     
   return EXIT_SUCCESS;

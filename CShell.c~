@@ -1,6 +1,6 @@
 /* 
 
-   CShell.c : She sells SChell at the sea shore. 
+   CShell.c : She sells CShells at the C shore 
 
  */
 
@@ -15,24 +15,29 @@
 #include "print.h"
 
 /* --- symbolic constants --- */
+#define HOSTNAMEMAX 100
 #define MAXBUF 512
 
+#define EXIT		("exit")
+
+/* --- symbolic macros --- */
+#define isexit(c) ((c) == EXIT)
+#define isspec(c) (isexit(c))
+
 /* --- use the /proc filesystem to obtain the hostname --- */
-char *gethostname()
+char *gethostname(char *hostname)
 {
-    
-  char hostname[MAXBUF];   
+  hostname = "";
   FILE *hostfile;
-  printf("Getting host file \n");
+  printf("Getting host file");
   hostfile = fopen ("/proc/sys/kernel/hostname","r");
   if(hostfile == NULL){
-      printf("Unable to open hostname file!\n");
+      printf("Unable to open hostname file!");
       
-  }else{
-        fscanf(hostfile, "%[^\n]", hostname);
+  }else
+      fgets(hostname, MAXBUF, hostfile);
       
-  }
-  printf(hostname);
+  
   return hostname;
 
 }
@@ -40,6 +45,8 @@ char *gethostname()
 /* --- execute a shell command --- */
 int executeshellcmd (Shellcmd *shellcmd)
 {
+  
+  
   printshellcmd(shellcmd);
 
   return 0;
@@ -50,7 +57,7 @@ int main(int argc, char* argv[]) {
 
   /* initialize the shell */
   char *cmdline;
-  char hostname[MAXBUF];
+  char hostname[HOSTNAMEMAX];
   int terminate = 0;
   Shellcmd shellcmd;
   
@@ -69,7 +76,7 @@ int main(int argc, char* argv[]) {
 	free(cmdline);
       } else terminate = 1;
     }
-    printf("Exiting CShell... Sea you soon!\n");
+    printf("Exiting CShell. Sea you soon!\n");
   }    
     
   return EXIT_SUCCESS;
