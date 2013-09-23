@@ -29,7 +29,8 @@ char *gethostname()
       printf("Unable to open hostname file!\n");
       
   }else{
-        fscanf(hostfile, "%[^\n]", hostname);
+        //fscanf(hostfile, "%[^\n]", hostname);
+      fgets(hostname, MAXBUF, hostfile);
       
   }
   printf(hostname);
