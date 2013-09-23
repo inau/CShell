@@ -18,10 +18,10 @@
 #define MAXBUF 512
 
 /* --- use the /proc filesystem to obtain the hostname --- */
-char *gethostname()
+char *gethostname(char *hostname)
 {
     
-  char hostname[MAXBUF];   
+  char hostname2[MAXBUF];   
   FILE *hostfile;
   printf("Getting host file \n");
   hostfile = fopen ("/proc/sys/kernel/hostname","r");
@@ -29,11 +29,11 @@ char *gethostname()
       printf("Unable to open hostname file!\n");
       
   }else{
-        //fscanf(hostfile, "%[^\n]", hostname);
       fgets(hostname, MAXBUF, hostfile);
-      
+      hostname[strlen(hostname)-1] = 0;
   }
-  printf(hostname);
+  //printf(hostname);
+  
   return hostname;
 
 }
