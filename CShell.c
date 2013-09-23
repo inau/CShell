@@ -13,7 +13,8 @@
 #include <readline/history.h>
 #include "parser.h"
 #include "print.h"
-#include <signal.h> 
+#include <signal.h>
+#include <unistd.h>
 
 /* --- symbolic constants --- */
 #define HOSTNAMEMAX 100
@@ -25,8 +26,11 @@
 #define isexit(c) (strcmp(c,EXIT) == 0)
 #define isspec(c) (isexit(c))
 
+/* --- buffer sizes --- */
+#define PATHBUF 100
+
 /* --- use the /proc filesystem to obtain the hostname --- */
-char *gethostname(char *hostname)
+char *gethostname2(char *hostname)
 {
   char hostname2[MAXBUF];   
   FILE *hostfile;
@@ -57,7 +61,31 @@ int executeshellcmd (Shellcmd *shellcmd)
       return 1;
     }
   }
-  
+
+  // Find all the programs in the path environment.
+  char *path = getenv("PATH");
+  if (path != NULL) {
+    char *progPath, *s = ":";
+    progPath = strtok(path, s);
+
+    // Look through the progPaths from PATH.
+    while(progPath != NULL) {
+      // If the file exists, execute.
+      char prog[PATHBUF];
+      strcpy(prog, progPath);
+      strcat(prog, "/");
+      strcat(prog, tok);
+      // If file exists, execute it.
+      if (access(prog, F_OK) != -1) {
+        char *const args[100];
+        execv(prog,args);
+      }
+      // Makes the progPath take the next token.
+      progPath = strtok(NULL, s);
+    }
+    printf("Command not found!");
+  }
+
   printshellcmd(shellcmd);
 
   return 0;
@@ -66,7 +94,7 @@ int executeshellcmd (Shellcmd *shellcmd)
 void catch_int(int sig_num){
 
     //sigflag = 1;
-    printf("Caught ctrl-c with num: %d", sig_num);
+    printf("Caught ctrl-c with num: %d\n", sig_num);
 }
 
 /* --- main loop of the simple shell --- */
@@ -78,7 +106,7 @@ int main(int argc, char* argv[]) {
   int terminate = 0;
   Shellcmd shellcmd;
   
-  if (gethostname(hostname)) {
+  if (gethostname2(hostname)) {
 
     /* parse commands until exit or ctrl-c */
     while (!terminate) {
