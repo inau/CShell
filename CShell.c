@@ -13,6 +13,7 @@
 #include <readline/history.h>
 #include "parser.h"
 #include "print.h"
+#include <signal.h> 
 
 /* --- symbolic constants --- */
 #define HOSTNAMEMAX 100
@@ -35,10 +36,10 @@ char *gethostname(char *hostname)
       printf("Unable to open hostname file!\n");
       
   }else{
+      printf("Sally sells Cshells by the Cshore. << Top nizzle sonz \n");
       fgets(hostname, MAXBUF, hostfile);
       hostname[strlen(hostname)-1] = 0;
   }
-  //printf(hostname);
   
   return hostname;
 
@@ -62,6 +63,12 @@ int executeshellcmd (Shellcmd *shellcmd)
   return 0;
 }
 
+void catch_int(int sig_num){
+
+    //sigflag = 1;
+    printf("Caught ctrl-c with num: %d", sig_num);
+}
+
 /* --- main loop of the simple shell --- */
 int main(int argc, char* argv[]) {
 
@@ -75,6 +82,7 @@ int main(int argc, char* argv[]) {
 
     /* parse commands until exit or ctrl-c */
     while (!terminate) {
+        signal(SIGINT, catch_int);
       printf("%s", hostname);
       if (cmdline = readline(":# ")) {
 	if(*cmdline) {
