@@ -11,7 +11,6 @@
 #define BG    ('&')
 #define RIN   ('<')
 #define RUT   ('>')
-#define EXIT  ('e') //Note: Only one byte..
 #define IDCHARS "_-.,/~+"
 
 /* --- symbolic macros --- */
@@ -19,8 +18,7 @@
 #define isbg(c)   ((c) == BG)
 #define isrin(c)  ((c) == RIN)
 #define isrut(c)  ((c) == RUT)
-#define isexit(c) ((c) == EXIT)
-#define isspec(c) (ispipe(c) || isbg(c) || isrin(c) || isrut(c) || isexit(c))
+#define isspec(c) (ispipe(c) || isbg(c) || isrin(c) || isrut(c))
 
 /* --- static memory allocation --- */
 static Cmd  cmdbuf[COMMANDMAX], *cmds;
@@ -67,8 +65,11 @@ int parsecommand(char *cmdline, Shellcmd *shellcmd)
       n = nexttoken(t, &tok);
       if (n == 0)
 		{
+			printf("Returning n==0 %s", tok);
 			return 1;
 		}
+
+      printf("%s", tok);
       t += n;
 
     switch(*tok) {
@@ -119,9 +120,6 @@ int parsecommand(char *cmdline, Shellcmd *shellcmd)
 		}
 		t += n;
 		break;
-	  case EXIT:
-		printf("Exiting CShell... Sea you soon! :)");
-		return 0;
 	  default:
 		return -1;
 	}

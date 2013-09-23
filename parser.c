@@ -65,8 +65,11 @@ int parsecommand(char *cmdline, Shellcmd *shellcmd)
       n = nexttoken(t, &tok);
       if (n == 0)
 		{
+			printf("Returning n==0 %s", tok);
 			return 1;
 		}
+
+      printf("Char: %s", tok);
       t += n;
 
     switch(*tok) {
