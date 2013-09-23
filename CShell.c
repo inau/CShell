@@ -18,10 +18,10 @@
 #define HOSTNAMEMAX 100
 #define MAXBUF 512
 
-#define EXIT		("exit")
+#define EXIT	("exit")
 
 /* --- symbolic macros --- */
-#define isexit(c) ((c) == EXIT)
+#define isexit(c) (strcmp(c,EXIT) == 0)
 #define isspec(c) (isexit(c))
 
 /* --- use the /proc filesystem to obtain the hostname --- */
@@ -49,9 +49,9 @@ int executeshellcmd (Shellcmd *shellcmd)
 {
   // Check if the command is one of the reserved.
   Cmd *firstCmd = shellcmd->the_cmds;
-  char *tok = (char*)(firstCmd->cmd);
+  char *tok = *(firstCmd->cmd);
   if (isspec(tok)) {
-    if (strcmp(tok, "exit")) {
+    if (isexit(tok)) {
       // Return 1 if exit (exits CShell).
       return 1;
     }
