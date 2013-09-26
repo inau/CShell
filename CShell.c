@@ -38,7 +38,6 @@ char *gethostname2(char *hostname)
 {
   char hostname2[MAXBUF];   
   FILE *hostfile;
-  printf("Getting host file \n");
   hostfile = fopen ("/proc/sys/kernel/hostname","r");
   if(hostfile == NULL){
       printf("Unable to open hostname file!\n");
@@ -59,8 +58,6 @@ void killProcessId(){
         kill(processID, SIGTERM);
         processID = 0;
     }
-    else
-        printf("No child to kill");
 }
 
 int pipecmd(char *filename1, char *argv1[], char *filename2, char *argv2[])
