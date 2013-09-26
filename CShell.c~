@@ -27,9 +27,9 @@
 #define isspec(c) (isexit(c))
 
 /* --- buffer sizes --- */
-#define PATHBUF 100
+#define PATHBUF 512
 
-int processID = 0;
+pid_t processID = 0;
 
 /* --- use the /proc filesystem to obtain the hostname --- */
 char *gethostname2(char *hostname)
@@ -54,7 +54,7 @@ char *gethostname2(char *hostname)
 
 void killProcessId(){
     if(processID != 0){
-        kill(processID);
+        kill(processID, SIGTERM);
         processID = 0;
     }
     else
@@ -97,8 +97,12 @@ int executeshellcmd (Shellcmd *shellcmd)
   // Find all the programs in the path environment.
   char *path = getenv("PATH");
   if (path != NULL) {
+    char * pathlist;
+    strcpy(pathlist, path);
     char *progPath, *s = ":";
-    progPath = strtok(path, s);
+    progPath = strtok(pathlist, s);
+
+    printf("Path is: %s\n", path);
 
     // Look through the progPaths from PATH.
     while(progPath != NULL) {
@@ -107,14 +111,26 @@ int executeshellcmd (Shellcmd *shellcmd)
       strcpy(prog, progPath);
       strcat(prog, "/");
       strcat(prog, tok);
+      printf("Prog is: %s\n", prog);
       // If file exists, execute it.
       if (access(prog, F_OK) != -1) {
-        char **args;
+        printf("Inside access(prog, F_OK) != -1)...\n");
+        char **args = (char**)malloc(150 * sizeof(char**));
         createArgsArray(firstCmd, &args);
-        printf("Prog: %14s\n", prog);
-        printf("First arg: %4s\n", args[0]);
-        printf("Second arg: %2s\n", args[1]);
-        execv(prog,args);
+
+        int status;
+        pid_t pid = fork();
+        if (pid == 0) {
+          execv(prog,args);
+        } else if(pid > 0) {
+          processID = pid;
+          waitpid(-1, &status, 0);
+          free(args);
+          return 0;
+        } else {
+          printf("She stopped selling CShells... Bad child!\n");
+        }
+        
       }
       // Makes the progPath take the next token.
       progPath = strtok(NULL, s);
