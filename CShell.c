@@ -59,7 +59,7 @@ void killProcessId(){
     }
     else
         printf("No child to kill");
-    
+}
 
 /* --- creates a list of arguments from a list of commands --- */
 void createArgsArray(Cmd *cmdList, char ***args) {
