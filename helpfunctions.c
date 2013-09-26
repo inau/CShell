@@ -17,7 +17,7 @@
 #define PATHBUF 1024
 
 // Find all the programs in the path environment.
-int fileexist(char *filename, char** givenprogpath) {
+int cmdexist(char *filename, char** givenprogpath) {
   char *path = getenv("PATH");
   if (path != NULL) {
     char pathlist[PATHBUF];

@@ -94,7 +94,7 @@ int executeshellcmd (Shellcmd *shellcmd)
 
   // If file exists, execute it.
   char *prog;
-  if (fileexist(tok, &prog)) {
+  if (cmdexist(tok, &prog)) {
     char **args = (char**)malloc(150 * sizeof(char**));
     createArgsArray(firstCmd, &args);
 		
