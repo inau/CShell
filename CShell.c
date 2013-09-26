@@ -51,6 +51,7 @@ char *gethostname2(char *hostname)
 
 }
 
+
 void killProcessId(){
     if(processID != 0){
         kill(processID);
@@ -59,6 +60,25 @@ void killProcessId(){
     else
         printf("No child to kill");
     
+
+/* --- creates a list of arguments from a list of commands --- */
+void createArgsArray(Cmd *cmdList, char ***args) {
+  Cmd *curCmd = cmdList;
+  char **arglist = *args;
+  while(curCmd != NULL) {
+    char **cmd = curCmd->cmd;
+    curCmd = curCmd->next;
+    
+    char **curArg = cmd;
+    while(*curArg != NULL) {
+      *arglist = *curArg;
+      *arglist++;
+      *curArg++;
+    }
+    // End the list with null.
+    *arglist = NULL;
+  }
+
 }
 
 /* --- execute a shell command --- */
@@ -89,13 +109,17 @@ int executeshellcmd (Shellcmd *shellcmd)
       strcat(prog, tok);
       // If file exists, execute it.
       if (access(prog, F_OK) != -1) {
-        char *const args[100];
+        char **args;
+        createArgsArray(firstCmd, &args);
+        printf("Prog: %14s\n", prog);
+        printf("First arg: %4s\n", args[0]);
+        printf("Second arg: %2s\n", args[1]);
         execv(prog,args);
       }
       // Makes the progPath take the next token.
       progPath = strtok(NULL, s);
     }
-    printf("Command not found!");
+    printf("Command not found!\n");
   }
 
   printshellcmd(shellcmd);
