@@ -11,6 +11,7 @@
 #include <string.h>
 #include <readline/readline.h>
 #include <readline/history.h>
+#include <sys/wait.h>
 #include "parser.h"
 #include "print.h"
 #include <signal.h>
