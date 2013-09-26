@@ -29,6 +29,8 @@
 /* --- buffer sizes --- */
 #define PATHBUF 100
 
+int processID = 0;
+
 /* --- use the /proc filesystem to obtain the hostname --- */
 char *gethostname2(char *hostname)
 {
@@ -47,6 +49,16 @@ char *gethostname2(char *hostname)
   
   return hostname;
 
+}
+
+void killProcessId(){
+    if(processID != 0){
+        kill(processID);
+        processID = 0;
+    }
+    else
+        printf("No child to kill");
+    
 }
 
 /* --- execute a shell command --- */
@@ -93,8 +105,9 @@ int executeshellcmd (Shellcmd *shellcmd)
 
 void catch_int(int sig_num){
 
-    //sigflag = 1;
-    printf("Caught ctrl-c with num: %d\n", sig_num);
+    //2 = ctrl - c
+    if(sig_num == 2)
+        killProcessId();
 }
 
 /* --- main loop of the simple shell --- */
