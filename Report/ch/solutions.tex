@@ -1,7 +1,16 @@
 \chapter{Solution}
-This is what we did to achieve the different requirements
+This chapter is about the different approaches we used to solve the different requirements[See Chapter 2].
 
 \subsection{R2}
 When solving this requirement we used our knowledge of the linux kernel and the way you access system information in the filesystem. The information we need is stored the file system under the path /proc/sys/kernel/hostname.
 
 Hence we opened a filestream, read from the file with fgets() and returned this within the provided method.
+
+\subsection{R3}
+To support the ls, wc and similar features we programmatially checked the environmental path for existing commands, if none were found we threw an error message.
+
+\subsection{R4}
+
+\subsection{R5}
+
+\subsection{R6}
