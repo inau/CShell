@@ -97,7 +97,7 @@ int executeshellcmd (Shellcmd *shellcmd)
   // Find all the programs in the path environment.
   char *path = getenv("PATH");
   if (path != NULL) {
-    char *pathlist;
+    char pathlist[1024];
     strcpy(pathlist, path);
     char *progPath, *s = ":";
     progPath = strtok(pathlist, s);
