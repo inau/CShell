@@ -62,6 +62,50 @@ void killProcessId(){
         printf("No child to kill");
 }
 
+int pipecmd(char *filename1, char *argv1[], char *filename2, char *argv2[])
+{
+
+	int fd[2];
+        int status = 0;
+	pipe(fd);
+	pid_t pid = fork();
+        if(pid == 0){
+            pid_t pid2 = fork();
+            if(pid2 == 0){
+                //grand-child
+                //input of pipe
+                /* Close stdin, duplicate the input side of pipe to stdin */
+                dup2(fd[0], 0);
+
+                execvp(filename2, argv2);
+
+                close(fd[0]);
+
+                exit(0);
+            }
+            else{
+    		//child
+                //output of pipe
+    		/* Close stdin, duplicate the input side of pipe to stdin */
+                dup2(fd[1], 1);
+
+    		execvp(filename1, argv1);
+
+    		close(fd[1]);
+
+    		exit(0);
+
+    		waitpid(0, &status, 0);
+            }
+    }
+    else{
+    	//parent
+      waitpid(0, &status, 0); //wait for all childs?
+    }
+  return 0;
+}
+
+
 /* --- creates a list of arguments from a list of commands --- */
 void createArgsArray(Cmd *cmdList, char ***args) {
   Cmd *curCmd = cmdList;
@@ -126,6 +170,7 @@ int executeshellcmd (Shellcmd *shellcmd)
         } else if(pid > 0) {
           processID = pid;
           waitpid(-1, &status, 0);
+          processID = 0; //make sure we cannot kill any processes
           free(args);
           return 0;
         } else {
