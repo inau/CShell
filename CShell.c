@@ -28,7 +28,7 @@
 #define isspec(c) (isexit(c))
 
 /* --- buffer sizes --- */
-#define PATHBUF 512
+#define PATHBUF 1024
 
 pid_t processID = 0;
 
@@ -98,7 +98,7 @@ int executeshellcmd (Shellcmd *shellcmd)
   // Find all the programs in the path environment.
   char *path = getenv("PATH");
   if (path != NULL) {
-    char pathlist[1024];
+    char pathlist[PATHBUF];
     strcpy(pathlist, path);
     char *progPath, *s = ":";
     progPath = strtok(pathlist, s);
