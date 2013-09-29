@@ -1,7 +1,5 @@
 /* 
-
    CShell.c : She sells CShells at the C shore 
-
  */
 
 #include <stdio.h>
@@ -11,8 +9,10 @@
 #include <string.h>
 #include <readline/readline.h>
 #include <readline/history.h>
+#include <sys/wait.h>
 #include "parser.h"
 #include "print.h"
+#include "changeDir.h"
 #include <signal.h>
 #include <unistd.h>
 
@@ -21,13 +21,15 @@
 #define MAXBUF 512
 
 #define EXIT	("exit")
+#define CD      ("cd")
 
 /* --- symbolic macros --- */
 #define isexit(c) (strcmp(c,EXIT) == 0)
-#define isspec(c) (isexit(c))
+#define iscd(c) (strcmp(c,CD) == 0)
+#define isspec(c) (isexit(c) || iscd(c))
 
 /* --- buffer sizes --- */
-#define PATHBUF 512
+#define PATHBUF 1024
 
 pid_t processID = 0;
 
@@ -61,6 +63,47 @@ void killProcessId(){
         printf("No child to kill");
 }
 
+int pipecmd(char *filename1, char *argv1[], char *filename2, char *argv2[])
+{
+	int fd[2];
+        int status = 0;
+	pipe(fd);
+	pid_t pid = fork();
+        if(pid == 0){
+            pid_t pid2 = fork();
+            if(pid2 == 0){
+                //grand-child
+                //input of pipe
+                /* Close stdin, duplicate the input side of pipe to stdin */
+                dup2(fd[0], 0);
+                execvp(filename2, argv2);
+                close(fd[0]);
+
+                exit(0);
+            }
+            else{
+    		//child
+                //output of pipe
+    		/* Close stdin, duplicate the input side of pipe to stdin */
+                dup2(fd[1], 1);
+
+    		execvp(filename1, argv1);
+
+    		close(fd[1]);
+
+    		exit(0);
+
+    		waitpid(0, &status, 0);
+            }
+    }
+    else{
+      //parent
+      waitpid(0, &status, 0); // Wait for all children?
+    }
+  return 0;
+}
+
+
 /* --- creates a list of arguments from a list of commands --- */
 void createArgsArray(Cmd *cmdList, char ***args) {
   Cmd *curCmd = cmdList;
@@ -92,12 +135,28 @@ int executeshellcmd (Shellcmd *shellcmd)
       // Return 1 if exit (exits CShell).
       return 1;
     }
+    if (iscd(tok)) {
+        char **args = (char**)malloc(150 * sizeof(char**));
+        createArgsArray(firstCmd, &args);
+        if(args != NULL) {
+                printf("Entered args != null \n");
+                if(changeDir(args[1])) printf("Dir Changed to: %s \n", getCurrentDir());
+                else printf("Unknown path: %s \n",args[1]);
+        }
+        else {
+            printf("Entered args == null \n");
+            changeDir("");
+            printf("Dir changed to: %s \n",getCurrentDir());
+        }
+        free(args);
+        return 0;
+    }
   }
 
   // Find all the programs in the path environment.
   char *path = getenv("PATH");
   if (path != NULL) {
-    char * pathlist;
+    char pathlist[PATHBUF];
     strcpy(pathlist, path);
     char *progPath, *s = ":";
     progPath = strtok(pathlist, s);
@@ -121,16 +180,17 @@ int executeshellcmd (Shellcmd *shellcmd)
         int status;
         pid_t pid = fork();
         if (pid == 0) {
+          printshellcmd(shellcmd);
           execv(prog,args);
         } else if(pid > 0) {
           processID = pid;
           waitpid(-1, &status, 0);
+          processID = 0; // Make sure we cannot kill any processes
           free(args);
           return 0;
         } else {
           printf("She stopped selling CShells... Bad child!\n");
-        }
-        
+        }        
       }
       // Makes the progPath take the next token.
       progPath = strtok(NULL, s);
@@ -144,7 +204,6 @@ int executeshellcmd (Shellcmd *shellcmd)
 }
 
 void catch_int(int sig_num){
-
     //2 = ctrl - c
     if(sig_num == 2)
         killProcessId();
@@ -152,7 +211,6 @@ void catch_int(int sig_num){
 
 /* --- main loop of the simple shell --- */
 int main(int argc, char* argv[]) {
-
   /* initialize the shell */
   char *cmdline;
   char hostname[HOSTNAMEMAX];
@@ -177,7 +235,5 @@ int main(int argc, char* argv[]) {
     }
     printf("Exiting CShell. Sea you soon!\n");
   }    
-    
   return EXIT_SUCCESS;
 }
-

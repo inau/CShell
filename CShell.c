@@ -94,8 +94,8 @@ int pipecmd(char *filename1, char *argv1[], char *filename2, char *argv2[])
             }
     }
     else{
-    	//parent
-      waitpid(0, &status, 0); //wait for all childs?
+      //parent
+      waitpid(0, &status, 0); // Wait for all children?
     }
   return 0;
 }
@@ -137,7 +137,7 @@ int executeshellcmd (Shellcmd *shellcmd)
         createArgsArray(firstCmd, &args);
         if(args != NULL) {
                 printf("Entered args != null \n");
-                if(changeDir(args[1])) printf("Dir Changed to: %s \n",getCurrentDir());
+                if(changeDir(args[1])) printf("Dir Changed to: %s \n", getCurrentDir());
                 else printf("Unknown path: %s \n",args[1]);
         }
         else {
@@ -177,11 +177,12 @@ int executeshellcmd (Shellcmd *shellcmd)
         int status;
         pid_t pid = fork();
         if (pid == 0) {
+          printshellcmd(shellcmd);
           execv(prog,args);
         } else if(pid > 0) {
           processID = pid;
           waitpid(-1, &status, 0);
-          processID = 0; //make sure we cannot kill any processes
+          processID = 0; // Make sure we cannot kill any processes
           free(args);
           return 0;
         } else {
