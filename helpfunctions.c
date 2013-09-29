@@ -7,10 +7,18 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
-#include <unistd.h>
+#include <fcntl.h>
+#include <readline/readline.h>
+#include <readline/history.h>
+#include <sys/wait.h>
+#include <sys/types.h>
 #include "parser.h"
+#include "print.h"
+#include <signal.h>
+#include <unistd.h>
 
 #include "helpfunctions.h"
+#include "changeDir.h"
 
 /* --- symbolic constants --- */
 #define MAXBUF 512
@@ -44,6 +52,7 @@ int cmdexist(char *filename, char** givenprogpath) {
   return 0;
 }
 
+/* --- Pipe one or more commands --- */
 int pipecmd(char *filename1, char *argv1[], char *filename2, char *argv2[])
 {
 	int fd[2];
@@ -57,7 +66,7 @@ int pipecmd(char *filename1, char *argv1[], char *filename2, char *argv2[])
         //input of pipe
         /* Close stdin, duplicate the input side of pipe to stdin */
         dup2(fd[0], 0);
-        execvp(filename2, argv2);
+        int result = execvp(filename2, argv2);
         close(fd[0]);
 
         exit(0);
@@ -78,7 +87,7 @@ int pipecmd(char *filename1, char *argv1[], char *filename2, char *argv2[])
   return 0;
 }
 
-/* --- creates a list of arguments from a list of commands --- */
+/* --- creates a list of arguments from a list of commands --- 
 void createArgsArray(Cmd *cmdList, char ***args) {
   Cmd *curCmd = cmdList;
   char **arglist = *args;
@@ -96,8 +105,21 @@ void createArgsArray(Cmd *cmdList, char ***args) {
     *arglist = NULL;
   }
 
+}*/
+
+void createArgsArray(char **cmd, char ***args) {
+  char **arglist = *args;
+	char **curArg = cmd;
+  while(*curArg != NULL) {
+    *arglist = *curArg;
+    *arglist++;
+    *curArg++;
+  }
+	// End the list with null.
+  *arglist = NULL;
 }
 
+/* --- creates a file --- */
 void createfile(char *filepath, int rm) {
 	// Check if file exists.
   if (access(filepath, F_OK) != -1) {
