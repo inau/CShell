@@ -1,7 +1,5 @@
 /* 
-
    CShell.c : She sells CShells at the C shore 
-
  */
 
 #include <stdio.h>
@@ -14,6 +12,7 @@
 #include <sys/wait.h>
 #include "parser.h"
 #include "print.h"
+#include "changeDir.h"
 #include <signal.h>
 #include <unistd.h>
 
@@ -22,10 +21,12 @@
 #define MAXBUF 512
 
 #define EXIT	("exit")
+#define CD      ("cd")
 
 /* --- symbolic macros --- */
 #define isexit(c) (strcmp(c,EXIT) == 0)
-#define isspec(c) (isexit(c))
+#define iscd(c) (strcmp(c,CD) == 0)
+#define isspec(c) (isexit(c) || iscd(c))
 
 /* --- buffer sizes --- */
 #define PATHBUF 1024
@@ -64,7 +65,6 @@ void killProcessId(){
 
 int pipecmd(char *filename1, char *argv1[], char *filename2, char *argv2[])
 {
-
 	int fd[2];
         int status = 0;
 	pipe(fd);
@@ -76,9 +76,7 @@ int pipecmd(char *filename1, char *argv1[], char *filename2, char *argv2[])
                 //input of pipe
                 /* Close stdin, duplicate the input side of pipe to stdin */
                 dup2(fd[0], 0);
-
                 execvp(filename2, argv2);
-
                 close(fd[0]);
 
                 exit(0);
@@ -137,6 +135,22 @@ int executeshellcmd (Shellcmd *shellcmd)
       // Return 1 if exit (exits CShell).
       return 1;
     }
+    if (iscd(tok)) {
+        char **args = (char**)malloc(150 * sizeof(char**));
+        createArgsArray(firstCmd, &args);
+        if(args != NULL) {
+                printf("Entered args != null \n");
+                if(changeDir(args[1])) printf("Dir Changed to: %s \n",getCurrentDir());
+                else printf("Unknown path: %s \n",args[1]);
+        }
+        else {
+            printf("Entered args == null \n");
+            changeDir("");
+            printf("Dir changed to: %s \n",getCurrentDir());
+        }
+        free(args);
+        return 0;
+    }
   }
 
   // Find all the programs in the path environment.
@@ -175,8 +189,7 @@ int executeshellcmd (Shellcmd *shellcmd)
           return 0;
         } else {
           printf("She stopped selling CShells... Bad child!\n");
-        }
-        
+        }        
       }
       // Makes the progPath take the next token.
       progPath = strtok(NULL, s);
@@ -190,7 +203,6 @@ int executeshellcmd (Shellcmd *shellcmd)
 }
 
 void catch_int(int sig_num){
-
     //2 = ctrl - c
     if(sig_num == 2)
         killProcessId();
@@ -198,7 +210,6 @@ void catch_int(int sig_num){
 
 /* --- main loop of the simple shell --- */
 int main(int argc, char* argv[]) {
-
   /* initialize the shell */
   char *cmdline;
   char hostname[HOSTNAMEMAX];
@@ -223,7 +234,5 @@ int main(int argc, char* argv[]) {
     }
     printf("Exiting CShell. Sea you soon!\n");
   }    
-    
   return EXIT_SUCCESS;
 }
-
