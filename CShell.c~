@@ -94,26 +94,25 @@ int executeshellcmd (Shellcmd *shellcmd)
 
   // If file exists, execute it.
   char *prog;
-  if (fileexist(tok, &prog)) {
+  if (cmdexist(tok, &prog)) {
     char **args = (char**)malloc(150 * sizeof(char**));
     createArgsArray(firstCmd, &args);
-		
-		if (shellcmd->rd_stdout != NULL) {
-			printf("Stdout: %s\n", shellcmd->rd_stdout);
-			createfile(shellcmd->rd_stdout, 1);
-		}
 
     int status;
     pid_t pid = fork();
     if (pid == 0) {
       printshellcmd(shellcmd);
 			if (shellcmd->rd_stdout != NULL) {
+				createfile(shellcmd->rd_stdout, 1);
 				close(1);
 				dup(open(shellcmd->rd_stdout,O_RDWR));
 			}
-			if (shellcmd->rd_stdout != NULL) {
-			printf("Stdout: %s\n", shellcmd->rd_stdout);
-			createfile(shellcmd->rd_stdout, 1);
+			if (shellcmd->rd_stdin != NULL) {
+			printf("Stdin: %s\n", shellcmd->rd_stdin);
+			if (access(shellcmd->rd_stdin, F_OK) != -1) {
+				close(0);
+				dup(open(shellcmd->rd_stdin,O_RDWR));
+			}
 		}
       execv(prog,args);
     } else if(pid > 0) {
