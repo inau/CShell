@@ -32,6 +32,8 @@ typedef struct _singlecmd {
 #define HOSTNAMEMAX 100
 #define MAXBUF 512
 #define PATHBUF 1024
+#define READ 0
+#define WRITE 1
 
 #define EXIT	("exit")
 #define CD      ("cd")
@@ -139,41 +141,8 @@ int executecmd(Singlecmd *singlecmd) {
     return 0;
 }
 
-
 /* --- Pipe one or more commands --- */
-int pipecmd(Singlecmd *cmd1, Singlecmd *cmd2) {
-    int fd[2];
-    int status = 0;
-    pipe(fd);
-    pid_t pid = fork();
-    if (pid == 0) {
-        pid_t pid2 = fork();
-        if (pid2 == 0) {
-            //grand-child
-            //input of pipe
-            /* Close stdin, duplicate the input side of pipe to stdin */
-            dup2(fd[0], 0);
-            int result = executecmd(cmd1);
-            close(fd[0]);
-            return result;
-        } else {
-            //child
-            //output of pipe
-            /* Close stdout, duplicate the output side of pipe to stdout */
-            dup2(fd[1], 1);
-            int result = executecmd(cmd2);
-            close(fd[1]);
-            return result;
-        }
-    } else {
-        //parent
-        waitpid(0, &status, 0); // Wait for all children?
-    }
-    return 0;
-}
-
-/* --- Pipe one or more commands --- */
-int pipecmdarray(Singlecmd **cmds, int i) {
+/*int pipecmdarray(Singlecmd **cmds, int i) {
     printf("Line 177 %i\n", i);
     printf("curscmd : %s \n", *cmds[0]->cmd);
     Singlecmd cmd = **(cmds+i);
@@ -183,7 +152,6 @@ int pipecmdarray(Singlecmd **cmds, int i) {
         if((&cmd)+1 != NULL){
             //printf("Line 184 %s", (*(cmd+1)->cmd));
             printf("Line 185 \n");
-            printf("Line 185 %s : %s\n", *cmd.cmd, *((&cmd)+1).cmd);
             int fd[2];
             int status = 0;
             pipe(fd);
@@ -214,6 +182,79 @@ int pipecmdarray(Singlecmd **cmds, int i) {
         }
     }
     return 0;
+}*/
+
+int pipecmd(Singlecmd **scmds, int i){
+	Singlecmd *scmd = scmds[i];
+	Singlecmd *scmdnext = scmds[i+1];
+	char *cmdtext = *scmd->cmd;
+	// Check if current command is a special command.
+	if (isspec(cmdtext))
+	{
+		return executecmd(scmd);
+	}
+	
+	// If next command isn't null, continue with forking.
+	if (scmdnext != NULL)	{
+		char *cmdnexttext = *scmdnext->cmd;
+		// Check if next command is a special command.
+		if (isspec(cmdnexttext))
+		{
+			return executecmd(scmdnext);
+		}
+		int fd[2]; // Program will read from fd[0] and write to fd[1]
+    int status = 0;
+    int result = 0;
+    pipe(fd);
+		pid_t pid = fork();
+		if (pid == 0)
+		{
+			pid_t pidinner = fork();
+			if (pidinner == 0)
+			{
+				printf("	Entering child process\n");
+        close(fd[READ]);
+        printf("	Line: 222\n");
+        dup2(fd[WRITE], WRITE);
+				printf("	Child process going to execute!\n");
+				int curresult = executecmd(scmdnext);
+				if (curresult == 1)
+				{
+					result = curresult;
+					exit(1);
+				}
+				close(fd[WRITE]);
+				printf("	Child process finished!\n");
+			}else if(pidinner > 0){
+				printf("	Entering parent process\n");
+        close(fd[WRITE]);
+        dup2(fd[READ], READ);
+				printf("	Parent process going to execute!\n");
+				int curresult = executecmd(scmd);
+				if (curresult == 1)
+				{
+					result = curresult;
+					exit(1);
+				}
+				close(fd[READ]);
+				printf("	Parent process finished!\n");
+			}
+		} else if (pid > 0)	{
+			printf("	Grandparent process going to wait!\n");
+			waitpid(pid, &status, 0);
+			close(fd[READ]);
+			close(fd[WRITE]);
+		}
+		
+		// If a command gives an exit code, return.
+		if (result == 1) {
+			return 1;
+		}
+		
+		// Call again.
+		pipecmd(scmds,i+1);
+	}
+	return 0;
 }
 
 
@@ -249,10 +290,8 @@ int executeshellcmd(Shellcmd *shellcmd) {
             curcmd = curcmd->next;
             
         }
-        printf("curscmd : %i \n", curscmd);
         cmds[curscmd] = NULL;
-        printf("First cmd: \n");
-        pipecmdarray(cmds, 0);
+        pipecmd(cmds, 0);
         free(cmds);
     }
     return 0;
