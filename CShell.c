@@ -24,8 +24,6 @@ typedef struct _singlecmd {
 #include "print.h"
 #include <signal.h>
 #include <unistd.h>
-
-#include "changeDir.h"
 #include "helpfunctions.h"
 
 /* --- symbolic constants --- */
