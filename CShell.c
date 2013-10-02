@@ -77,24 +77,23 @@ void changeDirectory(Singlecmd *scmd) {
     char **args = (char**) malloc(150 * sizeof (char**));
     createArgsArray(scmd->cmd, &args);
     if (args != NULL) { //assert that args exist
-        if(args[1] != NULL) { //assert that a parameter exists
-                rs = chdir(args[1]); //go to the path
-                getcwd(workingdirectory, sizeof(workingdirectory));                      
-        }
-        else { //go to home dir with empty args
-          rs = chdir(getenv("HOME"));
-          getcwd(workingdirectory, sizeof(workingdirectory));
+        if (args[1] != NULL) { //assert that a parameter exists
+            rs = chdir(args[1]); //go to the path
+            getcwd(workingdirectory, sizeof (workingdirectory));
+        } else { //go to home dir with empty args
+            rs = chdir(getenv("HOME"));
+            getcwd(workingdirectory, sizeof (workingdirectory));
         }
     }
-    free(args);       
-    
+    free(args);
+
     /*if(strcmp(olddir, workingdirectory)){
         rs = 1;
     }
     else {
         printfred("Invalid directory argument\n");
     }*/
-    if(rs != 0) {
+    if (rs != 0) {
         printfred("Invalid directory argument\n");
     }
 }
@@ -110,7 +109,7 @@ int executecmd(Singlecmd *singlecmd) {
             return 1;
         }
         if (iscd(tok)) {
-            changeDirectory(singlecmd);            
+            changeDirectory(singlecmd);
         }
     }
 
@@ -157,6 +156,7 @@ int executecmd(Singlecmd *singlecmd) {
 }
 
 /* --- Pipe one or more commands --- */
+
 /*int pipecmdarray(Singlecmd **cmds, int i) {
     printf("Line 177 %i\n", i);
     printf("curscmd : %s \n", *cmds[0]->cmd);
@@ -199,86 +199,79 @@ int executecmd(Singlecmd *singlecmd) {
     return 0;
 }*/
 
-int pipecmd(Singlecmd **scmds, int i){
-	Singlecmd *scmd = scmds[i];
-	Singlecmd *scmdnext = scmds[i+1];
-	char *cmdtext = *scmd->cmd;
-	// Check if current command is a special command.
-	if (isspec(cmdtext))
-	{
-		return executecmd(scmd);
-	}
-	
-	// If next command isn't null, continue with forking.
-	if (scmdnext != NULL)	{
-		char *cmdnexttext = *scmdnext->cmd;
-		// Check if next command is a special command.
-		if (isspec(cmdnexttext))
-		{
-			return executecmd(scmdnext);
-		}
-		int fd[2]; // Program will read from fd[0] and write to fd[1]
-    int status = 0;
-    int result = 0;
-    pipe(fd);
-		pid_t pid = fork();
-		if (pid == 0)
-		{
-			pid_t pidinner = fork();
-			if (pidinner == 0)
-			{
-				printf("	Entering child process\n");
-        close(fd[READ]);
-        printf("	Line: 222\n");
-        dup2(fd[WRITE], WRITE);
-				printf("	Child process going to execute!\n");
-				int curresult = executecmd(scmdnext);
-				if (curresult == 1)
-				{
-					result = curresult;
-					exit(1);
-				}
-				close(fd[WRITE]);
-				printf("	Child process finished!\n");
-			}else if(pidinner > 0){
-				printf("	Entering parent process\n");
-        close(fd[WRITE]);
-        dup2(fd[READ], READ);
-				printf("	Parent process going to execute!\n");
-				int curresult = executecmd(scmd);
-				if (curresult == 1)
-				{
-					result = curresult;
-					exit(1);
-				}
-				close(fd[READ]);
-				printf("	Parent process finished!\n");
-			}
-		} else if (pid > 0)	{
-			printf("	Grandparent process going to wait!\n");
-			waitpid(pid, &status, 0);
-			close(fd[READ]);
-			close(fd[WRITE]);
-		}
-		
-		// If a command gives an exit code, return.
-		if (result == 1) {
-			return 1;
-		}
-		
-		// Call again.
-		pipecmd(scmds,i+1);
-	}
-	return 0;
-}
+int pipecmd(Singlecmd **scmds, int i) {
+    Singlecmd *scmd = scmds[i];
+    Singlecmd *scmdnext = scmds[i + 1];
+    char *cmdtext = *scmd->cmd;
+    // Check if current command is a special command.
+    if (isspec(cmdtext)) {
+        return executecmd(scmd);
+    }
 
+    // If next command isn't null, continue with forking.
+    if (scmdnext != NULL) {
+        char *cmdnexttext = *scmdnext->cmd;
+        // Check if next command is a special command.
+        if (isspec(cmdnexttext)) {
+            return executecmd(scmdnext);
+        }
+        int fd[2]; // Program will read from fd[0] and write to fd[1]
+        int status = 0;
+        int result = 0;
+        pipe(fd);
+        pid_t pid = fork();
+        if (pid == 0) {
+            pid_t pidinner = fork();
+            if (pidinner == 0) {
+                printf("	Entering child process\n");
+                close(fd[READ]);
+                printf("	Line: 222\n");
+                dup2(fd[WRITE], WRITE);
+                printf("	Child process going to execute!\n");
+                int curresult = executecmd(scmdnext);
+                if (curresult == 1) {
+                    result = curresult;
+                    exit(1);
+                }
+                close(fd[WRITE]);
+                printf("	Child process finished!\n");
+            } else if (pidinner > 0) {
+                printf("	Entering parent process\n");
+                close(fd[WRITE]);
+                dup2(fd[READ], READ);
+                printf("	Parent process going to execute!\n");
+                int curresult = executecmd(scmd);
+                if (curresult == 1) {
+                    result = curresult;
+                    exit(1);
+                }
+                close(fd[READ]);
+                printf("	Parent process finished!\n");
+            }
+        } else if (pid > 0) {
+            printf("	Grandparent process going to wait!\n");
+            waitpid(pid, &status, 0);
+            close(fd[READ]);
+            close(fd[WRITE]);
+        }
+
+        // If a command gives an exit code, return.
+        if (result == 1) {
+            return 1;
+        }
+
+        // Call again.
+        pipecmd(scmds, i + 1);
+    }
+    return 0;
+}
 
 /* --- execute a shell command --- */
 int executeshellcmd(Shellcmd *shellcmd) {
     int cmdcount = 0;
     Cmd *curcmd;
     curcmd = shellcmd->the_cmds;
-    if(curcmd->next == NULL){
+    if (curcmd->next == NULL) {
         Singlecmd *singlecmd = (Singlecmd*) malloc(sizeof (Singlecmd));
         singlecmd->cmd = curcmd->cmd;
         singlecmd->rd_stdin = shellcmd->rd_stdin;
@@ -288,9 +281,9 @@ int executeshellcmd(Shellcmd *shellcmd) {
         int result = executecmd(singlecmd); // Get the result from execution.
         free(singlecmd);
         if (result > 0) return 1; // Exit if we want to.
-    }else{
+    } else {
         //Singlecmd *cmds[100*sizeof(Singlecmd)];
-        Singlecmd **cmds = (Singlecmd**) malloc(500*sizeof(Singlecmd));
+        Singlecmd **cmds = (Singlecmd**) malloc(500 * sizeof (Singlecmd));
         int curscmd = 0;
         while (curcmd != NULL) {
             // Execute one command at a time.
@@ -303,7 +296,7 @@ int executeshellcmd(Shellcmd *shellcmd) {
             cmds[curscmd] = singlecmd;
             curscmd++;
             curcmd = curcmd->next;
-            
+
         }
         cmds[curscmd] = NULL;
         pipecmd(cmds, 0);
@@ -330,9 +323,9 @@ int main(int argc, char* argv[]) {
 
     if (gethostname2(hostname)) {
         chdir(getenv("HOME")); //reset dir to home
-        getcwd(workingdirectory, sizeof(workingdirectory));
+        getcwd(workingdirectory, sizeof (workingdirectory));
         /* parse commands until exit or ctrl-c */
-        char stdline[PATHBUF*2];
+        char stdline[PATHBUF * 2];
         while (!terminate) {
             signal(SIGINT, catch_int);
             strcpy(stdline, hostname);
