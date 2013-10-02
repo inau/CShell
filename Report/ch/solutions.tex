@@ -1,16 +1,45 @@
 \chapter{Solution}
 This chapter is about the different approaches we used to solve the different requirements[See Chapter 2].
+\subsection{R1: Running independent}
+The BOSC skeleton more or less already provided this feature.
 
-\subsection{R2}
-When solving this requirement we used our knowledge of the linux kernel and the way you access system information in the filesystem. The information we need is stored the file system under the path /proc/sys/kernel/hostname.
+\subsection{R2: Displaying the hostname}
+When solving this requirement we used our knowledge of the linux kernel and the way you access system information in the filesystem. The information we need is stored in the file system under the path /proc/sys/kernel/hostname.
 
-Hence we opened a filestream, read from the file with fgets() and returned this within the provided method.
+We used two methods to get the hostname.
+\begin{itemize}
+\item fopen(const char *path, const char *mode) which opens a filestream
+\item fgets(char *s, int size, FILE *stream) which we used to read out a string of the open file
+\end{itemize}
+We removed the last char to avoid the nextline character which we didn't need.
 
-\subsection{R3}
+\subsection{R3: Implementing use of standard commands}
 To support the ls, wc and similar features we programmatially checked the environmental path for existing commands, if none were found we threw an error message.
 
-\subsection{R4}
+To achieve this we used the function getenv(constant char *name), with the input "PATH".
 
-\subsection{R5}
+\subsection{R4: Implementing Backgrounding}
 
-\subsection{R6}
+\subsection{R5: Implementing Redirection}
+
+\subsection{R6: Implementing Piping}
+
+\subsection{R7: Implementing exit}
+
+\subsection{R8: Implementing break}
+
+\subsection{F1: Change directory function}
+To support this feature we need following methods:
+\begin{itemize}
+\item \begin{verbatim}chdir(char* path)
+\end{verbatim}
+\item \begin{verbatim}getcwd(char*path, t_size t)
+\end{verbatim}
+\end{itemize}
+
+The chdir() method, changes the current running programs working directory. This means that programs executed, after chdir() has altered the 'current working directory' will be ran within aforementioned directory, ie. running ls will return the contents of that specific directory.\\
+
+The getcwd() method is a getter for accessing the current working directory.
+
+\subsection{F2: Coloring of ls output}
+Due to time restrictions, we have not finished this feature - but nevertheless some aspects of our  shell are quite colorfull.
