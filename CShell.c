@@ -71,29 +71,20 @@ void killProcessId() {
 }
 
 void changeDirectory(Singlecmd *scmd) {
-    int rs = 0;
-    char olddir[PATHBUF];
-    strcpy(olddir, workingdirectory);
+    int rs = 0; //used for result
     char **args = (char**) malloc(150 * sizeof (char**));
     createArgsArray(scmd->cmd, &args);
     if (args != NULL) { //assert that args exist
         if (args[1] != NULL) { //assert that a parameter exists
-            rs = chdir(args[1]); //go to the path
-            getcwd(workingdirectory, sizeof (workingdirectory));
-        } else { //go to home dir with empty args
-            rs = chdir(getenv("HOME"));
-            getcwd(workingdirectory, sizeof (workingdirectory));
+            rs = chdir(args[1]); //go to given path
+        } else { 
+            rs = chdir(getenv("HOME")); //go to home dir with empty args
         }
     }
+    getcwd(workingdirectory, sizeof (workingdirectory)); //update our variable
     free(args);
 
-    /*if(strcmp(olddir, workingdirectory)){
-        rs = 1;
-    }
-    else {
-        printfred("Invalid directory argument\n");
-    }*/
-    if (rs != 0) {
+    if (rs != 0) { //check that the result is invalid - if so print err
         printfred("Invalid directory argument\n");
     }
 }

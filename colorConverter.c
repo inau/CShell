@@ -11,8 +11,6 @@
 #define KCYN  "\x1B[36m"
 #define KWHT  "\x1B[37m"
 
-#define BUF 1024
-
 void mcprint(char* src, char* color)
 {
     printf("%s%s%s", color ,src , KNRM);
