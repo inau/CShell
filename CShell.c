@@ -250,16 +250,16 @@ int pipecmd(Singlecmd **scmds, int i) {
             }
         } else if (pid > 0) {
             printf("	Grandparent process going to wait!\n");
-            waitpid(pid, &status, 0);
+
             close(fd[READ]);
             close(fd[WRITE]);
+            waitpid(pid, &status, 0);
         }
 
         // If a command gives an exit code, return.
         if (result == 1) {
             return 1;
         }
-
         // Call again.
         pipecmd(scmds, i + 1);
     }
