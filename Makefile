@@ -1,6 +1,6 @@
 all: CShell
 
-OBJS = parser.o print.o changeDir.o helpfunctions.o
+OBJS = parser.o print.o helpfunctions.o colorConverter.o
 LIBS= -lreadline -ltermcap
 CC = gcc
 

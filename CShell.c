@@ -43,7 +43,7 @@ typedef struct _singlecmd {
 #define iscd(c) (strcmp(c,CD) == 0)
 #define isspec(c) (isexit(c) || iscd(c))
 
-
+char workingdirectory[PATHBUF];
 pid_t processID = 0;
 
 /* --- use the /proc filesystem to obtain the hostname --- */
@@ -72,6 +72,35 @@ void killProcessId() {
     }
 }
 
+void changeDirectory(Singlecmd *scmd) {
+    int rs = 0;
+    char olddir[PATHBUF];
+    strcpy(olddir, workingdirectory);
+    char **args = (char**) malloc(150 * sizeof (char**));
+    createArgsArray(scmd->cmd, &args);
+    if (args != NULL) { //assert that args exist
+        if(args[1] != NULL) { //assert that a parameter exists
+                rs = chdir(args[1]); //go to the path
+                getcwd(workingdirectory, sizeof(workingdirectory));                      
+        }
+        else { //go to home dir with empty args
+          rs = chdir(getenv("HOME"));
+          getcwd(workingdirectory, sizeof(workingdirectory));
+        }
+    }
+    free(args);       
+    
+    /*if(strcmp(olddir, workingdirectory)){
+        rs = 1;
+    }
+    else {
+        printfred("Invalid directory argument\n");
+    }*/
+    if(rs != 0) {
+        printfred("Invalid directory argument\n");
+    }
+}
+
 /* --- executes a single command --- */
 int executecmd(Singlecmd *singlecmd) {
     // Check if the command is one of the reserved ones.;
@@ -83,19 +112,7 @@ int executecmd(Singlecmd *singlecmd) {
             return 1;
         }
         if (iscd(tok)) {
-            char **args = (char**) malloc(150 * sizeof (char**));
-            createArgsArray(singlecmd->cmd, &args);
-            if (args != NULL) {
-                printf("Entered args != null \n");
-                if (changeDir(args[1])) printf("Dir Changed to: %s \n", getCurrentDir());
-                else printf("Unknown path: %s \n", args[1]);
-            } else {
-                printf("Entered args == null \n");
-                changeDir("");
-                printf("Dir changed to: %s \n", getCurrentDir());
-            }
-            free(args);
-            return 0;
+            changeDirectory(singlecmd);            
         }
     }
 
@@ -314,11 +331,16 @@ int main(int argc, char* argv[]) {
     Shellcmd shellcmd;
 
     if (gethostname2(hostname)) {
-
+        chdir(getenv("HOME")); //reset dir to home
+        getcwd(workingdirectory, sizeof(workingdirectory));
         /* parse commands until exit or ctrl-c */
+        char stdline[PATHBUF*2];
         while (!terminate) {
             signal(SIGINT, catch_int);
-            printf("%s", hostname);
+            strcpy(stdline, hostname);
+            strcat(stdline, ":");
+            strcat(stdline, workingdirectory);
+            printfgreen(stdline);
             if (cmdline = readline(":# ")) {
                 if (*cmdline) {
                     add_history(cmdline);
@@ -329,7 +351,7 @@ int main(int argc, char* argv[]) {
                 free(cmdline);
             } else terminate = 1;
         }
-        printf("Exiting CShell. Sea you soon!\n");
+        printfcyan("Exiting CShell. Sea you soon!\n");
     }
     return EXIT_SUCCESS;
 }
