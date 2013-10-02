@@ -18,7 +18,6 @@
 #include <unistd.h>
 
 #include "helpfunctions.h"
-#include "changeDir.h"
 
 /* --- symbolic constants --- */
 #define MAXBUF 512

@@ -13,31 +13,31 @@
 
 #define BUF 1024
 
-void cprint(char* src, char* color)
+void mcprint(char* src, char* color)
 {
     printf("%s%s%s", color ,src , KNRM);
 }
 
 void printfred(char* input) {
-    cprint(input, KRED);
+    mcprint(input, KRED);
 }
 
 void printfgreen(char* input) {
-    cprint(input, KGRN);    
+    mcprint(input, KGRN);    
 }
 
 void printfyellow(char* input) {
-    cprint(input, KYEL);
+    mcprint(input, KYEL);
 }
 
 void printfblue(char* input) {
-    cprint(input, KBLU);
+    mcprint(input, KBLU);
 }
 
 void printfmagenta(char* input) {
-    cprint(input, KMAG);
+    mcprint(input, KMAG);
 }
 
 void printfcyan(char* input) {
-    cprint(input, KCYN);
+    mcprint(input, KCYN);
 }
