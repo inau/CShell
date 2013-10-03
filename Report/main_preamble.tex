@@ -4,6 +4,22 @@
 \usepackage{enumitem}
 \usepackage[showframe=true]{geometry}
 \usepackage{changepage}
+\usepackage{listings}
+\usepackage{color}
+
+\lstdefinestyle{customc}{
+  belowcaptionskip=1\baselineskip,
+  breaklines=true,
+  frame=L,
+  xleftmargin=\parindent,
+  language=C,
+  showstringspaces=false,
+  basicstyle=\footnotesize\ttfamily,
+  keywordstyle=\bfseries\color{green!40!black},
+  commentstyle=\itshape\color{purple!40!black},
+  identifierstyle=\color{blue},
+  stringstyle=\color{orange},
+}
 
 \newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
 
@@ -26,5 +42,7 @@
 \include{ch/solutions}
 
 \include{ch/testing}
+
+\include{ch/codeblocks}
 
 \end{document}
