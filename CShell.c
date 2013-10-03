@@ -97,7 +97,7 @@ int executecmd(Singlecmd *singlecmd) {
     if (isspec(tok)) {
         if (isexit(tok)) {
             // Return 1 if exit (exits CShell).
-            return 1;
+            exit(1);
         }
         if (iscd(tok)) {
             changeDirectory(singlecmd);
@@ -135,6 +135,7 @@ int executecmd(Singlecmd *singlecmd) {
             if (singlecmd->background == 0) {
                 processID = pid;
                 waitpid(pid, &status, 0);
+                if(status == 1) {exit(1);}
                 processID = 0; // Make sure we cannot kill any processes.
             }
             return 0;
@@ -204,7 +205,7 @@ int pipecmd(Singlecmd **scmds, int i) {
         char *cmdnexttext = *scmdnext->cmd;
         // Check if next command is a special command.
         if (isspec(cmdnexttext)) {
-            return executecmd(scmdnext);
+            exit(executecmd(scmdnext));
         }
         int fd[2]; // Program will read from fd[0] and write to fd[1]
         int status = 0;
@@ -249,7 +250,7 @@ int pipecmd(Singlecmd **scmds, int i) {
 
         // If a command gives an exit code, return.
         if (result == 1) {
-            return 1;
+            exit(1);
         }
         // Call again.
         pipecmd(scmds, i + 1);
