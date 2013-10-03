@@ -14,17 +14,37 @@ We used two methods to get the hostname.
 We removed the last char to avoid the nextline character which we didn't need.
 
 \subsection{R3: Implementing use of standard commands}
-To support the ls, wc and similar features we programmatially checked the environmental path for existing commands, if none were found we threw an error message.
+To support the ls, wc and similar features we programmatically checked the environmental path for existing commands, if none were found we threw an error message.
 
 To achieve this we used the function getenv(constant char *name), with the input "PATH".
 
 \subsection{R4: Implementing Backgrounding}
+To achieve the backgrounding feature we needed the fork() method, additionally we added a statement in the execute command loop[See appendix \ref{app:B}, L??].\\
+We checked whether the background property of the single command struct equalled 0, if this was the case we should not wait for the current process.
 
 \subsection{R5: Implementing Redirection}
+We need following methods to achieve the redirection.
+\begin{itemize}
+\item int close(int fd)
+\item int dup(int oldfd)
+\item FILE *fopen(const char *path, const char *mode)
+\end{itemize}
+The function close(int fd) closes the given file descriptor if successful. With the knowledge that dup() always uses the lowest available filedescriptor and duplicates the given one, we know that using close followed by dup would replace that filedescripter.
+Additional usefull information is that std\_in equals 0, std\_out equals 1 and std\_err equals 2.\\
+So to  redirect input we close(0), open a filestream, dup the filestreams descriptor and close(1) instead to redirect output.
 
 \subsection{R6: Implementing Piping}
 
 \subsection{R7: Implementing exit}
+We added definitions in the beginning, similar to the ones in the parser. The difference was that we used char* instead of char.
+\begin{itemize}
+\item EXIT	("exit")
+\item CD      ("cd")
+\item isexit(c) (strcmp(c,EXIT) == 0)
+\item iscd(c) (strcmp(c,CD) == 0)
+\item isspec(c) (isexit(c) || iscd(c))
+\end{itemize}
+
 
 \subsection{R8: Implementing break}
 
@@ -36,7 +56,6 @@ To support this feature we need following methods:
 \item \begin{verbatim}getcwd(char*path, t_size t)
 \end{verbatim}
 \end{itemize}
-
 The chdir() method, changes the current running programs working directory. This means that programs executed, after chdir() has altered the 'current working directory' will be ran within aforementioned directory, ie. running ls will return the contents of that specific directory.\\
 
 The getcwd() method is a getter for accessing the current working directory.

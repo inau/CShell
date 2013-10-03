@@ -6,6 +6,9 @@
 \usepackage{changepage}
 \usepackage{listings}
 \usepackage{color}
+\usepackage[toc,page]{appendix}
+\usepackage{booktabs}
+\usepackage{xcolor,colortbl}
 
 \lstdefinestyle{customc}{
   belowcaptionskip=1\baselineskip,
@@ -41,8 +44,9 @@
 
 \include{ch/solutions}
 
+\begin{appendices}
 \include{ch/testing}
-
 \include{ch/codeblocks}
+\end{appendices}
 
 \end{document}

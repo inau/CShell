@@ -1,51 +1,31 @@
 \chapter{Testing}
 
-\begin{table}[ht]
-\caption{Whitebox of Standard C commands}
-% title of Table
-\centering
-% used for centering table
-\begin{tabular}{c c c c}
-% centered columns (4 columns)
-\hline \hline %inserts double horizontal lines
-Case & Input & Expected & Actual \\
-[0.5ex] % inserts table %heading
-\hline % inserts single horizontal line
-ls & ls / & print root folder contents & printed root contents\\
-% inserting body of the table
-2 & 47 & 877 & 230\\
-3 & 31 & 25 & 415\\
-4 & 35 & 144 & 2356\\
-5 & 45 & 300 & 556\\
-[1ex] % [1ex] adds vertical space
-\hline %inserts single line
-\end{tabular}
-\label{table:nonlin}
-% is used to refer this table in the text
-\end{table}
+\definecolor{Gray1}{gray}{0.85}
+\definecolor{Gray2}{gray}{0.65}
 
-\begin{table}[feat1]
-\caption{Whitebox of CD command}
-% title of Table
+%Command args; 1st = input, 2nd = precondition, 3rd = expected, 4th = actual
+\newcommand{\tblrow}[4]{
+\hline
+\rowcolor{Gray1}
+Input: & #1\\ \hline
+\rowcolor{Gray1}
+Precondition: & #2\\
+\hline \hline
+Expected: & #3\\
+\hline
+Actual: & #4\\
+\hline \hline
+}
+
+\begin{table}[ht]
+\caption{Change directory}
 \centering
-% used for centering table
-\begin{tabular}{|c|c|c|c|}
-% centered columns (4 columns)
-\hline \hline %inserts double horizontal lines
-Case & Input & Expected & Actual \\
-[0.5ex] % inserts table %heading
-\hline \hline % inserts single horizontal line
-cd &  & go to home folder & went to home folder\\
-\hline
-cd & / & go to root folder & went to root folder\\
-\hline
-cd & /home/(username)/Documents & \begin{tabular}{@{}c@{}}go to the document folder\\for the current user\end{tabular} & went to the Documents folder\\
-\hline
-cd & fklfjsaas & print an error & invalid directory argument\\
-[1ex] % [1ex] adds vertical space
-\hline
-\hline
+\begin{tabular}{|p{\dimexpr.2\textwidth} p{\dimexpr.8\textwidth-4\tabcolsep}|} \hline
+\tblrow{cd}{Shell is in any directory other than home dir}{Navigate to home dir}{Navigated to home dir}
+\tblrow{cd 'username'}{Shell is in home dir}
+{Navigate to subdirectory of the home folder}{Navigated to subdir}
+\tblrow{cd /home/'username'/Documents/}{Shell is in any directory}{Navigate to Documents directory for the given user}{Navigated to the Documents directory for the given user}
+
 \end{tabular}
 \label{table:nonlin}
-% is used to refer this table in the text
 \end{table}
