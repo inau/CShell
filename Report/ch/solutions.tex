@@ -47,6 +47,20 @@ We added definitions in the beginning, similar to the ones in the parser. The di
 
 
 \subsection{R8: Implementing break}
+\begin{itemize}
+\item signal(SIGINT, catch\_int)
+\end{itemize}
+
+The key combination Ctrl-C raises a signal with a constant SIGINT.
+In our main method we register a signal handler to listen for SIGINT, and then call the catch\_int method.
+
+The catch\_int method then calls the killProcessId method, which kills the process that is stored in a global variable, as long as the process is not 0.
+
+When we start a foreground process the global process id, is set to that process id, and thus ctrl+c enables us to terminate that process.
+
+If the process should finish by itself, we set the global process id variable back to 0, thus disallowing ctrl+c to break anything.
+
+We only need a single global variable, as it is not possible to run more than a single foreground process simultaneously. 
 
 \subsection{F1: Change directory function}
 To support this feature we need following methods:
