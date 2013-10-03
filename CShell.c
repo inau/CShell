@@ -30,8 +30,8 @@ typedef struct _singlecmd {
 #define HOSTNAMEMAX 100
 #define MAXBUF 512
 #define PATHBUF 1024
-#define READ 0
-#define WRITE 1
+#define READ 0 // Stdin (read from)
+#define WRITE 1 // Stdout (write to)
 
 #define EXIT	("exit")
 #define CD      ("cd")
@@ -191,7 +191,7 @@ int executecmd(Singlecmd *singlecmd) {
     return 0;
 }*/
 
-int pipecmd(Singlecmd **scmds, int i) {
+/*int pipecmd(Singlecmd **scmds, int i) {
     Singlecmd *scmd = scmds[i];
     Singlecmd *scmdnext = scmds[i + 1];
     char *cmdtext = *scmd->cmd;
@@ -256,6 +256,147 @@ int pipecmd(Singlecmd **scmds, int i) {
         pipecmd(scmds, i + 1);
     }
     return 0;
+}*/
+
+int pipecmd(Singlecmd **scmds, int count) {
+    int nbscmd = count;
+    int fdold[2], fdnext[2]; // Program will read from fd[0] and write to fd[1]
+    int status = 0;
+    int input = -1;
+    pid_t pid = -1;
+    while(nbscmd > 0) {
+        //printf("Current command nb: %i\n", count-nbscmd);
+        //printf("Current command run: %s\n", *scmds[nbscmd]->cmd);
+        
+        printf("  Current #: %i\n", nbscmd);
+        printf("  Current command: %s\n", *scmds[nbscmd]->cmd);
+        
+        // If the commands are run in incorrect order (from front to back)
+        if (count > nbscmd) {
+            pipe(fdnext);
+        }
+        
+        pid = fork();
+        if (pid == 0) {
+            if (nbscmd > 0) {
+                dup2(fdold[READ], READ);
+                close(fdold[READ]);
+                close(fdold[WRITE]);
+            }
+            if (count > nbscmd) {
+                close(fdnext[READ]);
+                dup2(fdnext[WRITE], WRITE);
+                close(fdnext[WRITE]);
+            }
+            executecmd(scmds[nbscmd]);
+        } else {
+            if(nbscmd > 0) {
+                close(fdold[READ]);
+                close(fdold[WRITE]);
+            }
+            if(count > nbscmd) {
+                fdold[READ] = fdnext[READ];
+                fdold[WRITE] = fdnext[WRITE];
+            }
+        }
+        
+        nbscmd--;
+        
+        /*
+         * If the commands are run in the correct order (from back to front) 
+         * 
+         if (nbscmd == count) {
+            pipe(fd);
+            printf("    Stdin  fd1: %i\n", fd[READ]);
+            printf("    Stdout fd1: %i\n", fd[WRITE]);
+            printf("    Stdin  fd2: %i\n", fdnext[READ]);
+            printf("    Stdout fd2: %i\n", fdnext[WRITE]);
+            printf("\n");
+            pid_t pid = fork();
+            if (pid == 0) {
+                dup2(fd[WRITE], WRITE);
+                close(fdnext[READ]);
+                close(fdnext[WRITE]);
+                close(fd[READ]);
+                close(fd[WRITE]);
+                char * const args[] = {"", NULL};            // REMEMBER ME!!!
+                execv("ls",args);
+                //executecmd(scmds[nbscmd]);
+            }
+        } else if(nbscmd > 0 && nbscmd < count) {
+            pipe(fdnext);
+            printf("    Middle command!\n");
+            printf("    Stdin  fd1: %i\n", fd[READ]);
+            printf("    Stdout fd1: %i\n", fd[WRITE]);
+            printf("    Stdin  fd2: %i\n", fdnext[READ]);
+            printf("    Stdout fd2: %i\n", fdnext[WRITE]);
+            printf("\n");
+            pid_t pid = fork();
+            if (pid == 0) {
+                dup2(fd[READ],READ);
+                dup2(fdnext[WRITE], WRITE);
+                printf("      Writing to: %i\n", fdnext[WRITE]);
+                close(fdnext[READ]);
+                close(fdnext[WRITE]);
+                close(fd[READ]);
+                close(fd[WRITE]);
+                char * const args[] = {"", NULL};            // REMEMBER ME!!!
+                execv("cat",args);
+                //executecmd(scmds[nbscmd]);
+            }
+            fd[READ] = fdnext[READ];
+            fd[WRITE] = fdnext[WRITE];
+        } else {
+            printf("    Stdin  fd1: %i\n", fd[READ]);
+            printf("    Stdout fd1: %i\n", 1);
+            printf("    Stdin  fd2: %i\n", fdnext[READ]);
+            printf("    Stdout fd2: %i\n", fdnext[WRITE]);
+            printf("\n");
+            pid_t pid = fork();
+            if (pid == 0) {
+                dup2(fd[READ],READ);
+                close(fdnext[READ]);
+                close(fdnext[WRITE]);
+                close(fd[READ]);
+                close(fd[WRITE]);
+                char * const args[] = {"", NULL};            // REMEMBER ME!!!
+                execv("cat",args);
+                //executecmd(scmds[nbscmd]);
+            }
+        }
+        
+        waitpid(pid, &status, 0);
+        close(fd[WRITE]);
+        close(fd[READ]);
+        
+        // Count down to go through the list.
+        nbscmd--;*/
+    }
+    
+    if (count > 0) {
+        close(fd[READ]);
+        close(fd[WRITE]);
+    }
+
+    /*
+     * while (command)
+     * pipe
+     * save input as read
+     * fork
+     * in child:
+     *   dup write
+     *   
+     *   exec
+     * in parent:
+     *   close write (and pipe write)
+     *   dup read (as input)
+     *   wait for child
+     *   close read
+     *   (set input to write)
+     *   command++;
+     * while over
+     * close input (return parent to stdin / stdout)
+     */
 }
 
 /* --- execute a shell command --- */
@@ -291,7 +432,7 @@ int executeshellcmd(Shellcmd *shellcmd) {
 
         }
         cmds[curscmd] = NULL;
-        pipecmd(cmds, 0);
+        pipecmd(cmds, curscmd-1);
         free(cmds);
     }
     return 0;
@@ -314,7 +455,6 @@ int main(int argc, char* argv[]) {
     Shellcmd shellcmd;
 
     if (gethostname2(hostname)) {
-        chdir(getenv("HOME")); //reset dir to home
         getcwd(workingdirectory, sizeof (workingdirectory));
         /* parse commands until exit or ctrl-c */
         char stdline[PATHBUF * 2];
