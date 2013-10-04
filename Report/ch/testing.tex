@@ -17,8 +17,77 @@ Actual: & #4\\
 \hline \hline
 }
 
-\begin{table}[ht]
-\caption{Change directory}
+
+\begin{table}
+\caption{Requirement 2: hostname}
+\centering
+\begin{tabular}{|p{\dimexpr.2\textwidth} p{\dimexpr.8\textwidth-4\tabcolsep}|} \hline
+
+\tblrow{}{Hostname is "virtualpc"}{"virtualpc \#"}{"virtualpc \#"}
+
+\end{tabular}
+\label{table:nonlin}
+\end{table}
+
+\begin{table}
+\caption{Requirement 3: unix commands}
+\centering
+\begin{tabular}{|p{\dimexpr.2\textwidth} p{\dimexpr.8\textwidth-4\tabcolsep}|} \hline
+
+\tblrow{ls}{In folder /}{prints contents of /}{prints contents of /}
+
+\end{tabular}
+\label{table:nonlin}
+\end{table}
+
+\begin{table}
+\caption{Requirement 4: backgrounding}
+\centering
+\begin{tabular}{|p{\dimexpr.2\textwidth} p{\dimexpr.8\textwidth-4\tabcolsep}|} \hline
+
+\tblrow{ping -c 5 google.com \&}{}{Printing the ping results, but allowing further commands}{Printing the ping results, but allowing further commands.}
+
+\end{tabular}
+\label{table:nonlin}
+\end{table}
+
+\begin{table}
+\caption{Requirement 5: redirection}
+\centering
+\begin{tabular}{|p{\dimexpr.2\textwidth} p{\dimexpr.8\textwidth-4\tabcolsep}|} \hline
+
+\tblrow{wc -l  $<$ /etc/passwd $>$ accounts}{Shell is run with sudo}{accounts file is created with \# of accounts}{accounts file is created with \# of accounts}
+
+
+\end{tabular}
+\label{table:nonlin}
+\end{table}
+
+\begin{table}
+\caption{Requirement 7: exit}
+\centering
+\begin{tabular}{|p{\dimexpr.2\textwidth} p{\dimexpr.8\textwidth-4\tabcolsep}|} \hline
+
+\tblrow{exit}{}{The shell is aborted and returns to normal shell}{the shell is aborted and returns to normal shell"}
+
+\end{tabular}
+\label{table:nonlin}
+\end{table}
+
+\begin{table}
+\caption{Requirement 8: ctrl-c}
+\centering
+\begin{tabular}{|p{\dimexpr.2\textwidth} p{\dimexpr.8\textwidth-4\tabcolsep}|} \hline
+
+\tblrow{ctrl-c}{Running foreground process cat}{Supposed to terminate the process}{foreground process is terminated}
+\tblrow{ctrl-c}{No running foreground process}{Do nothing}{Ctrl-c captured, but nothing is terminated}
+
+\end{tabular}
+\label{table:nonlin}
+\end{table}
+
+\begin{table}
+\caption{Feature 1: Change directory}
 \centering
 \begin{tabular}{|p{\dimexpr.2\textwidth} p{\dimexpr.8\textwidth-4\tabcolsep}|} \hline
 \tblrow{cd}{Shell is in any directory other than home dir}{Navigate to home dir}{Navigated to home dir}

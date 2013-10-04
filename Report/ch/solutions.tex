@@ -34,7 +34,20 @@ Additional usefull information is that std\_in equals 0, std\_out equals 1 and s
 So to  redirect input we close(0), open a filestream, dup the filestreams descriptor and close(1) instead to redirect output.
 
 \subsection{R6: Implementing Piping}
+Our piping solution ended up not working. We made several attempts, which is outlined in CSHELL.c in the pipecmd method.
+It basically works by getting a command and checking if the command is the first, a middle, or the last command.
 
+We attempted with a loop, where we have two pipes which we alternate between while processing the command chain.
+
+When its the first command it knows its supposed to pipe the given std\_out to the next commands std\_in.
+
+In case its a 'middle' command we know that both input and output should be piped - and this is where we need two pipes. The first pipe is a handle to the previous commandos output where as the second pipe is set to the output.
+
+In the next iteration these handles are turned and the one used to pipe output, is used to provide input for the next command.
+Its important to close all ends of a pipe, else deadlocks can occur since no EOF will be sent, and thus never terminate.
+
+In case of the command not having a 'next' it must either be a single command or the last command, hence we change the stdout back to the shellCMD, in order to print the results.
+  
 \subsection{R7: Implementing exit}
 We added definitions in the beginning, similar to the ones in the parser. The difference was that we used char* instead of char.
 \begin{itemize}
